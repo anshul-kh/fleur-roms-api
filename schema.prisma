@@ -1,0 +1,36 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider             = "prisma-client-py"
+  recursive_type_depth = 5
+}
+
+model Recovery {
+  id Int @id @default(autoincrement())
+  name String 
+  version Float
+  modified DateTime @default(now()) @db.Date 
+  tested Boolean @default(false)
+  download String @default("")  
+}
+
+model Roms {
+  id Int @id @unique @default(autoincrement())
+  name String 
+  discription String 
+  tested Boolean @default(false)
+  android_version Int 
+  build Builds[] 
+}
+
+model Builds {
+  id Int @id @default(autoincrement()) @unique
+  modified DateTime @db.Date @default(now()) 
+  tested Boolean @default(false)
+  download String 
+  rom_id Int
+  rom Roms @relation(fields: [rom_id],references: [id])
+}
