@@ -161,3 +161,45 @@ async def get_rom(name):
         return jsonify({'error': str(e), 'success': False})
     finally:
         await db.disconnect()
+
+
+
+# Get Roms By Id
+async def get_rom_by_id(id):
+    try:
+        await db.connect()
+        res = await Roms.prisma().find_many(
+            where={"id":id},
+            include={
+                'build': True  
+            }
+        )
+
+        res_dict = [
+            {
+                'id': item.id,
+                'name': item.name,
+                'discription': item.discription,
+                'tested': item.tested,
+                'android_version': item.android_version,
+                'build': [
+                    {
+                        'id': build.id,
+                        'rom_id': build.rom_id,
+                        'modified': build.modified.isoformat() if build.modified else None,
+                        'tested': build.tested,
+                        'download': build.download
+                    }
+                    for build in item.build
+                ] if item.build else []
+            }
+            for item in res
+        ]
+
+        return jsonify({'data': res_dict, 'success': True})
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return jsonify({'error': str(e), 'success': False})
+    finally:
+        await db.disconnect()
+

@@ -1,5 +1,5 @@
 from api.operations.steps import get_steps
-from api.operations.roms import new_rom_record,get_all_roms,add_new_build,get_rom
+from api.operations.roms import new_rom_record,get_all_roms,add_new_build,get_rom,get_rom_by_id
 from flask import request,Blueprint,jsonify
 
 roms = Blueprint('roms',__name__)
@@ -18,11 +18,20 @@ async def list_roms():
     res = await get_all_roms()
     return res
     
-@roms.route('/rom/<name>',methods=['GET'])
+@roms.route('/search/<name>',methods=['GET'])
 async def search_rom(name):
     try:
-        name = name.lower()
+        name = str(name)
         res = await get_rom(name)
+        return res
+    except Exception as e:
+        return jsonify({'err':str(e)}),500
+        
+@roms.route('/rom/<id>',methods=['GET'])
+async def search_rom_by_id(id):
+    try:
+        rom_id = int(id)
+        res = await get_rom_by_id(rom_id)
         return res
     except Exception as e:
         return jsonify({'err':str(e)}),500
